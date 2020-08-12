@@ -22,6 +22,7 @@ DOCKER_OPTS := \
 			-e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
 			-e NCCL_DEBUG=VERSION \
             -e DISPLAY=${DISPLAY} \
+	    --gpus all \
             -e XAUTHORITY \
             -e NVIDIA_DRIVER_CAPABILITIES=all \
 			-v ~/.aws:/root/.aws \
@@ -67,16 +68,16 @@ docker-build:
 		-t ${DOCKER_IMAGE} .
 
 docker-start-interactive: docker-build
-	nvidia-docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} bash
+	docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} bash
 
 docker-start-jupyter: docker-build
-	nvidia-docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
+	docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
 		bash -c "jupyter notebook --port=8888 -ip=0.0.0.0 --allow-root --no-browser"
 
 docker-run: docker-build
-	nvidia-docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
+	docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
 		bash -c "${COMMAND}"
 
 docker-run-mpi: docker-build
-	nvidia-docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
+	docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
 		bash -c "${MPI_CMD} ${COMMAND}"
