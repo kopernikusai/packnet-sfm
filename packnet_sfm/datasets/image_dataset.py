@@ -28,7 +28,9 @@ def read_files(directory, ext=('.png', '.jpg', '.jpeg'), skip_empty=True):
             d_files = read_files(entry.path, ext=ext, skip_empty=skip_empty)
             if skip_empty and not len(d_files):
                 continue
-            files[relpath] = d_files[entry.path]
+            for k in d_files:
+                files[k] = d_files[k]
+            #files[relpath] = d_files[entry.path]
         elif entry.is_file():
             if ext is None or entry.path.lower().endswith(tuple(ext)):
                 files[directory].append(relpath)
