@@ -1,0 +1,42 @@
+model:
+    name: 'SelfSupModel'
+    optimizer:
+        name: 'Adam'
+        depth:
+            lr: 0.0002
+        pose:
+            lr: 0.0002
+    scheduler:
+        name: 'StepLR'
+        step_size: 30
+        gamma: 0.5
+    depth_net:
+        name: 'PackNet01'
+        version: '1A'
+    pose_net:
+        name: 'PoseNet'
+        version: ''
+    params:
+        crop: 'garg'
+        min_depth: 0.0
+        max_depth: 80.0
+datasets:
+    augmentation:
+        image_shape: (544, 960)
+    train:
+        batch_size: 3
+        dataset: ['Image']
+        path: ['/HDD/Documents/Google Drive/Archivos_compartidos/Kopernikus_General/Training_videos/ML_videos/moving_actors/moving_actors_ds']
+        split: ['{:d}']
+        depth_type: ['']
+        repeat: [2]
+    validation:
+        dataset: ['KITTI']
+        path: ['data/datasets/KITTI_tiny']
+        split: ['kitti_tiny.txt']
+        depth_type: ['velodyne']
+    test:
+        dataset: ['KITTI']
+        path: ['data/datasets/KITTI_tiny']
+        split: ['kitti_tiny.txt']
+        depth_type: ['velodyne']
