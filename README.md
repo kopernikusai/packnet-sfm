@@ -73,6 +73,10 @@ If you encounter out of memory issues, try a lower `batch_size` parameter in the
 
 NB: if you would rather not use docker, you could create a [conda](https://docs.conda.io/en/latest/) environment via following the steps in the Dockerfile and mixing `conda` and `pip` at your own risks...
 
+### Using Conda
+
+Run `conda env create -f environment.yml` and then install the package with `pip install -e .`.
+
 ## Datasets
 
 Datasets are assumed to be downloaded in `/data/datasets/<dataset-name>` (can be a symbolic link).

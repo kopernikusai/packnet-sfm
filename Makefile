@@ -22,8 +22,8 @@ DOCKER_OPTS := \
 			-e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
 			-e NCCL_DEBUG=VERSION \
             -e DISPLAY=${DISPLAY} \
-	    --gpus all \
             -e XAUTHORITY \
+	    --gpus all \
             -e NVIDIA_DRIVER_CAPABILITIES=all \
 			-v ~/.aws:/root/.aws \
 			-v /root/.ssh:/root/.ssh \
@@ -35,6 +35,7 @@ DOCKER_OPTS := \
 			-v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v ${PWD}:${WORKSPACE} \
+			-v "/HDD/Documents/Google Drive/Archivos_compartidos/Kopernikus_General/Training_videos/ML_videos/moving_actors":"/HDD/Documents/Google Drive/Archivos_compartidos/Kopernikus_General/Training_videos/ML_videos/moving_actors" \
 			-w ${WORKSPACE} \
 			--privileged \
 			--ipc=host \
