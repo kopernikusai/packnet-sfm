@@ -69,11 +69,16 @@ class WandbLogger:
 
     def create_experiment(self):
         """Creates and returns a new experiment"""
-        experiment = wandb.init(
-            name=self._name, dir=self._dir, project=self._project,
-            anonymous=self._anonymous, reinit=True, id=self._id,
-            resume='allow', tags=self._tags, entity=self._entity
-        )
+        try:
+            experiment = wandb.init(
+                anonymous="allow", id=self._id,
+                resume='allow', tags=self._tags, entity=self._entity
+            )
+        except:
+            experiment = wandb.init(
+                anonymous="allow", id=self._id,
+                resume='allow', tags=self._tags, entity=self._entity
+            )
         wandb.run.save()
         return experiment
 

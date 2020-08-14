@@ -1,0 +1,30 @@
+name: packnet
+dependencies:
+    - python=3.6
+    - pytorch=1.4.0
+    - pillow<7
+    - pip
+    - pip:
+        - torchvision==0.5.0
+        - future
+        - typing
+        - numpy
+        - pandas
+        - matplotlib
+        - jupyter
+        - h5py
+        - awscli
+        - boto3
+        - tqdm
+        - termcolor
+        - path.py
+        - pillow-simd
+        - opencv-python-headless
+        - mpi4py
+        - onnx
+        - onnxruntime
+        - pycuda
+        - yacs
+        - cython==0.29.10
+        - horovod
+        - wandb
