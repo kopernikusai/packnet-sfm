@@ -55,7 +55,7 @@ class HorovodTrainer(BaseTrainer):
         # Epoch loop
         for epoch in range(module.current_epoch, self.max_epochs):
             # Train
-            self.train(train_dataloader, module, optimizer)
+            self.train(train_dataloader, module, optimizer, epoch)
             # Validation
             validation_output = self.validate(val_dataloaders, module)
             # Check and save model
@@ -65,7 +65,7 @@ class HorovodTrainer(BaseTrainer):
             # Take a scheduler step
             scheduler.step()
 
-    def train(self, dataloader, module, optimizer):
+    def train(self, dataloader, module, optimizer, epoch_num):
         # Set module to train
         module.train()
         # Shuffle dataloader sampler
@@ -82,20 +82,25 @@ class HorovodTrainer(BaseTrainer):
             optimizer.zero_grad()
             # Send samples to GPU and take a training step
             batch = sample_to_cuda(batch)
-            output = module.training_step(batch, i)
+            output = module.training_step(batch)
             # Backprop through loss and take an optimizer step
             output['loss'].backward()
             optimizer.step()
             # Append output to list of outputs
             output['loss'] = output['loss'].detach()
-            outputs.append(output)
+            #output['inv_depth'] = [t.detach() for t in output['inv_depth']]
+            #outputs.append(output)
+            #import pdb; pdb.set_trace() # Check len of outputs
             # Update progress bar if in rank 0
             if self.is_rank_0:
+                if i % 20 == 0:
+                    if module.logger:
+                        module.training_epoch_end(output, batch, epoch_num, i)
                 progress_bar.set_description(
                     'Epoch {} | Avg.Loss {:.4f}'.format(
                         module.current_epoch, self.avg_loss(output['loss'].item())))
         # Return outputs for epoch end
-        return module.training_epoch_end(outputs)
+        #return module.training_epoch_end(outputs)
 
     def validate(self, dataloaders, module):
         # Set module to eval

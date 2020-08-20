@@ -24,12 +24,14 @@ datasets:
     augmentation:
         image_shape: (544, 960)
     train:
-        batch_size: 3
+        batch_size: 1
+        num_workers: 6
         dataset: ['Image']
         path: ['/HDD/Documents/Google Drive/Archivos_compartidos/Kopernikus_General/Training_videos/ML_videos/moving_actors/moving_actors_ds']
         split: ['{:d}']
         depth_type: ['']
         repeat: [2]
+        num_logs: 9837
     validation:
         dataset: ['KITTI']
         path: ['data/datasets/KITTI_tiny']
@@ -42,7 +44,7 @@ datasets:
         depth_type: ['velodyne']
 wandb:
     dry_run: False                                # Wandb dry-run (not logging)
-    name: 'Test_packnet'                                      # Wandb run name
+    name: 'Test_packnet'                          # Wandb run name
     project: os.environ.get("WANDB_PROJECT", "")  # Wandb project
     entity: os.environ.get("WANDB_ENTITY", "")    # Wandb entity
     tags: []                                      # Wandb tags

@@ -97,7 +97,8 @@ def viz_inv_depth(inv_depth, normalizer=None, percentile=95,
         normalizer = np.percentile(
             inv_depth[inv_depth > 0] if filter_zeros else inv_depth, percentile)
     inv_depth /= (normalizer + 1e-6)
-    return cm(np.clip(inv_depth, 0., 1.0))[:, :, :3]
+    #return cm(np.clip(inv_depth, 0., 1.0))[:, :, :3]
+    return cm(np.clip(inv_depth, 0., 1.0))[..., :3]
 
 
 def inv2depth(inv_depth):

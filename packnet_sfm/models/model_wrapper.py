@@ -184,9 +184,11 @@ class ModelWrapper(torch.nn.Module):
         """Processes a training batch."""
         batch = stack_batch(batch)
         output = self.model(batch, progress=self.progress)
+        import pdb; pdb.set_trace()
         return {
             'loss': output['loss'],
-            'metrics': output['metrics']
+            'metrics': output['metrics'],
+            'inv_depth': output['inv_depths'],
         }
 
     def validation_step(self, batch, *args):
@@ -212,18 +214,24 @@ class ModelWrapper(torch.nn.Module):
             **output['metrics'],
         }
 
-    def training_epoch_end(self, output_batch):
+    def training_epoch_end(self, output_batch, batch, batch_num, local_step, *args):
         """Finishes a training epoch."""
 
         # Calculate and reduce average loss and metrics per GPU
         loss_and_metrics = average_loss_and_metrics(output_batch, 'avg_train')
         loss_and_metrics = reduce_dict(loss_and_metrics, to_item=True)
 
+        step = batch_num * len(self.train_dataset) + local_step
+
         # Log to wandb
         if self.logger:
-            self.logger.log_metrics({
-                **self.logs, **loss_and_metrics,
-            })
+            self.logger.log_depth('train', batch, output_batch,
+                                  (0,), self.train_dataset,
+                                  world_size(),
+                                  self.config.datasets.train)
+
+            self.logger.log_metrics({**self.logs, **loss_and_metrics}, step=step)
+
 
         return {
             **loss_and_metrics

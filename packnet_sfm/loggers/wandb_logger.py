@@ -6,13 +6,14 @@
 from argparse import Namespace
 from collections import OrderedDict
 import numpy as np
+import os
 import torch.nn as nn
 import wandb
 from wandb.wandb_run import Run
 
 from packnet_sfm.utils.depth import viz_inv_depth
 from packnet_sfm.utils.logging import prepare_dataset_prefix
-from packnet_sfm.utils.types import is_dict, is_tensor
+from packnet_sfm.utils.types import is_dict, is_tensor, is_list
 
 
 class WandbLogger:
@@ -69,15 +70,20 @@ class WandbLogger:
 
     def create_experiment(self):
         """Creates and returns a new experiment"""
+        entity = os.environ.get("WANDB_ENTITY", "")
+
         try:
             experiment = wandb.init(
-                anonymous="allow", id=self._id,
-                resume='allow', tags=self._tags, entity=self._entity
+                name=self._name, dir=self._dir, 
+                anonymous='allow', id=self._id,
+                resume='allow', tags=self._tags, entity=entity
             )
         except:
+            print("... trying wandb again")
             experiment = wandb.init(
-                anonymous="allow", id=self._id,
-                resume='allow', tags=self._tags, entity=self._entity
+                name=self._name, dir=self._dir, 
+                anonymous='allow', id=self._id,
+                resume='allow', tags=self._tags, entity=entity
             )
         wandb.run.save()
         return experiment
@@ -128,11 +134,11 @@ class WandbLogger:
         params = self._convert_params(params)
         self.experiment.config.update(params, allow_val_change=True)
 
-    def log_metrics(self, metrics):
+    def log_metrics(self, metrics, step):
         """Logs training metrics."""
         self._metrics.update(metrics)
-        if 'global_step' in metrics:
-            self.experiment.log(self._metrics)
+        if 'global_step' in metrics or True:
+            self.experiment.log(self._metrics, step=step)
             self._metrics.clear()
 
     def log_images(self, func, mode, batch, output,
@@ -159,11 +165,12 @@ class WandbLogger:
         config : CfgNode
             Model configuration
         """
-        dataset_idx = 0 if len(args) == 1 else args[1]
+        dataset_idx = 0 if len(args) == 1 else args[1] # What the hell is this?
         prefix = prepare_dataset_prefix(config, dataset_idx)
         interval = len(dataset[dataset_idx]) // world_size // config.num_logs
         if args[0] % interval == 0:
-            prefix_idx = '{}-{}-{}'.format(mode, prefix, batch['idx'][0].item())
+            #prefix_idx = '{}-{}-{}'.format(mode, prefix, batch['idx'][0].item())
+            prefix_idx = '{}-{}'.format(mode, prefix)
             func(prefix_idx, batch, output)
 
     # Log depth images
@@ -250,6 +257,7 @@ def log_inv_depth(key, prefix, batch, i=0):
         Wandb image ready for logging
     """
     inv_depth = batch[key] if is_dict(batch) else batch
+    inv_depth = inv_depth[0] if is_list(inv_depth) else inv_depth
     return prep_image(prefix, key,
                       viz_inv_depth(inv_depth[i]))
 
@@ -274,5 +282,5 @@ def prep_image(prefix, key, image):
     """
     if is_tensor(image):
         image = image.detach().permute(1, 2, 0).cpu().numpy()
-    prefix_key = '{}-{}'.format(prefix, key)
-    return {prefix_key: wandb.Image(image, caption=key)}
+    #prefix_key = '{}-{}'.format(prefix, key)
+    return {key: wandb.Image(image, caption=key)}
