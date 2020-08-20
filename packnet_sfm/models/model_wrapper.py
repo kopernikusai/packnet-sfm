@@ -214,12 +214,12 @@ class ModelWrapper(torch.nn.Module):
             **output['metrics'],
         }
 
-    def training_epoch_end(self, output_batch, batch, batch_num, local_step, *args):
-        """Finishes a training epoch."""
+    def log_epoch_step(self, output_batch, batch, batch_num, local_step):
+        """Loggs matrics, loss and depth of step."""
 
         # Calculate and reduce average loss and metrics per GPU
-        loss_and_metrics = average_loss_and_metrics(output_batch, 'avg_train')
-        loss_and_metrics = reduce_dict(loss_and_metrics, to_item=True)
+        # loss_and_metrics = average_loss_and_metrics(output_batch, 'avg_train') # Maybe we dont need this guy
+        loss_and_metrics = reduce_dict(loss_and_metrics, to_item=True) # We need this for multi GPU
 
         step = batch_num * len(self.train_dataset) + local_step
 
@@ -232,6 +232,21 @@ class ModelWrapper(torch.nn.Module):
 
             self.logger.log_metrics({**self.logs, **loss_and_metrics}, step=step)
 
+
+        return {
+            **loss_and_metrics
+        }
+
+    def training_epoch_end(self, output_batch):
+        """Finishes a training epoch."""
+
+        # Calculate and reduce average loss and metrics per GPU
+        loss_and_metrics = average_loss_and_metrics(output_batch, 'avg_train')
+        loss_and_metrics = reduce_dict(loss_and_metrics, to_item=True)
+
+        # Log to wandb
+        if self.logger:
+            self.logger.log_metrics({**self.logs, **loss_and_metrics})
 
         return {
             **loss_and_metrics

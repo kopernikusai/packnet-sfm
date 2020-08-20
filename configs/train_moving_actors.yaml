@@ -25,12 +25,12 @@ datasets:
         image_shape: (544, 960)
     train:
         batch_size: 1
-        num_workers: 6
+        num_workers: 1
         dataset: ['Image']
-        path: ['/HDD/Documents/Google Drive/Archivos_compartidos/Kopernikus_General/Training_videos/ML_videos/moving_actors/moving_actors_ds']
+        path: ['/home/kopernikus/Downloads/moving_actors_ds']
         split: ['{:d}']
         depth_type: ['']
-        repeat: [2]
+        repeat: [1]
         num_logs: 9837
     validation:
         dataset: ['KITTI']

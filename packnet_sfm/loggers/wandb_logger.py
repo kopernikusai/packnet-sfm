@@ -134,7 +134,7 @@ class WandbLogger:
         params = self._convert_params(params)
         self.experiment.config.update(params, allow_val_change=True)
 
-    def log_metrics(self, metrics, step):
+    def log_metrics(self, metrics, step=None):
         """Logs training metrics."""
         self._metrics.update(metrics)
         if 'global_step' in metrics or True:
