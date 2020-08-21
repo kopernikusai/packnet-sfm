@@ -27,7 +27,8 @@ datasets:
         batch_size: 1
         num_workers: 1
         dataset: ['Image']
-        path: ['/home/kopernikus/Downloads/moving_actors_ds']
+        #path: ['/home/kopernikus/Downloads/moving_actors_ds']
+        path: ['/HDD/Documents/Google Drive/Archivos_compartidos/Kopernikus_General/Training_videos/ML_videos/moving_actors/moving_actors_ds']
         split: ['{:d}']
         depth_type: ['']
         repeat: [1]

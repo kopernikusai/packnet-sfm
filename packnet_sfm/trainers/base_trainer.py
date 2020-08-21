@@ -48,7 +48,7 @@ class BaseTrainer:
         return tqdm(enumerate(dataloader, 0),
                     unit=' images', unit_scale=self.world_size * config.batch_size,
                     total=len(dataloader), smoothing=0,
-                    disable=not self.is_rank_0, ncols=ncols,
+                    disable=not self.is_rank_0, # ncols=ncols,
                     )
 
     def val_progress_bar(self, dataloader, config, n=0, ncols=120):

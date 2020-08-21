@@ -18,6 +18,7 @@ from packnet_sfm.utils.logging import pcolor
 from packnet_sfm.utils.reduce import all_reduce_metrics, reduce_dict, \
     create_dict, average_loss_and_metrics
 from packnet_sfm.utils.save import save_depth
+from packnet_sfm.utils.types import is_dict
 from packnet_sfm.models.model_utils import stack_batch
 
 
@@ -184,7 +185,6 @@ class ModelWrapper(torch.nn.Module):
         """Processes a training batch."""
         batch = stack_batch(batch)
         output = self.model(batch, progress=self.progress)
-        import pdb; pdb.set_trace()
         return {
             'loss': output['loss'],
             'metrics': output['metrics'],
@@ -218,7 +218,19 @@ class ModelWrapper(torch.nn.Module):
         """Loggs matrics, loss and depth of step."""
 
         # Calculate and reduce average loss and metrics per GPU
-        # loss_and_metrics = average_loss_and_metrics(output_batch, 'avg_train') # Maybe we dont need this guy
+        #loss_and_metrics = average_loss_and_metrics(output_batch, 'avg_train') # Maybe we dont need this guy
+        def flatten_dict(dic, prefix):
+            flat_dict = dict()
+            for key in dic:
+                if is_dict(dic[key]):
+                    sub_dict_flat = flatten_dict(dic[key], prefix)
+                    flat_dict.update(sub_dict_flat)
+                else:
+                    flat_dict["{}-{}".format(prefix, key)] = dic[key]
+            return flat_dict
+
+        loss_and_metrics = OrderedDict(flatten_dict(output_batch, "single_step"))
+        del loss_and_metrics["single_step-inv_depth"]
         loss_and_metrics = reduce_dict(loss_and_metrics, to_item=True) # We need this for multi GPU
 
         step = batch_num * len(self.train_dataset) + local_step
