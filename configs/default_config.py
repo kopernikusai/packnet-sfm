@@ -21,9 +21,12 @@ cfg.arch.max_epochs = 50                # Maximum number of epochs
 cfg.checkpoint = CN()
 cfg.checkpoint.filepath = ''            # Checkpoint filepath to save data
 cfg.checkpoint.save_top_k = 5           # Number of best models to save
-cfg.checkpoint.monitor = 'loss'         # Metric to monitor for logging
+cfg.checkpoint.monitor_val = 'loss'     # Metric to monitor for logging
+cfg.checkpoint.monitor_train = 'loss'   # Metric to monitor for saving during training
 cfg.checkpoint.monitor_index = 0        # Dataset index for the metric to monitor
 cfg.checkpoint.mode = 'auto'            # Automatically determine direction of improvement (increase or decrease)
+cfg.checkpoint.period = 1               # Min steps between validation to save model
+cfg.checkpoint.save_freq_in_train = -1  # Saves between every step
 cfg.checkpoint.s3_path = ''             # s3 path for AWS model syncing
 cfg.checkpoint.s3_frequency = 1         # How often to s3 sync
 ########################################################################################################################
@@ -139,13 +142,14 @@ cfg.datasets.train.batch_size = 8                   # Training batch size
 cfg.datasets.train.num_workers = 16                 # Training number of workers
 cfg.datasets.train.back_context = 1                 # Training backward context
 cfg.datasets.train.forward_context = 1              # Training forward context
-cfg.datasets.train.dataset = []                     # Training dataset
+cfg.datasets.train.dataset = []                     # Training datase0]
 cfg.datasets.train.path = []                        # Training data path
 cfg.datasets.train.split = []                       # Training split
 cfg.datasets.train.depth_type = ['']                # Training depth type
 cfg.datasets.train.cameras = [[]]                   # Training cameras (double list, one for each dataset)
 cfg.datasets.train.repeat = [1]                     # Number of times training dataset is repeated per epoch
 cfg.datasets.train.num_logs = 5                     # Number of training images to log
+cfg.datasets.train.log_freq = 1000                  # Steps between logging
 ########################################################################################################################
 ### DATASETS.VALIDATION
 ########################################################################################################################

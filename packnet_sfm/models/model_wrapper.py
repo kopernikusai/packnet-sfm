@@ -214,8 +214,8 @@ class ModelWrapper(torch.nn.Module):
             **output['metrics'],
         }
 
-    def log_epoch_step(self, output_batch, batch, batch_num, local_step):
-        """Loggs matrics, loss and depth of step."""
+    def log_epoch_step(self, output_batch, batch, step, checkpoint):
+        """Logs matrics, loss and depth of step."""
 
         # Calculate and reduce average loss and metrics per GPU
         #loss_and_metrics = average_loss_and_metrics(output_batch, 'avg_train') # Maybe we dont need this guy
@@ -233,8 +233,6 @@ class ModelWrapper(torch.nn.Module):
         del loss_and_metrics["single_step-inv_depth"]
         loss_and_metrics = reduce_dict(loss_and_metrics, to_item=True) # We need this for multi GPU
 
-        step = batch_num * len(self.train_dataset) + local_step
-
         # Log to wandb
         if self.logger:
             self.logger.log_depth('train', batch, output_batch,
@@ -244,6 +242,9 @@ class ModelWrapper(torch.nn.Module):
 
             self.logger.log_metrics({**self.logs, **loss_and_metrics}, step=step)
 
+        if checkpoint and step % self.config.checkpoint.save_freq:
+            import pdb; pdb.set_trace()
+            checkpoint.check_and_save(self, loss_and_metrics, 'train')
 
         return {
             **loss_and_metrics

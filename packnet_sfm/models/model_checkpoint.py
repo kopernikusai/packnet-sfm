@@ -22,7 +22,8 @@ def save_code(filepath):
 
 
 class ModelCheckpoint:
-    def __init__(self, filepath=None, monitor='val_loss',
+    def __init__(self, filepath=None, monitor_val='val_loss',
+                 monitor_train='train_loss',
                  save_top_k=1, mode='auto', period=1,
                  s3_path='', s3_frequency=5):
         super().__init__()
@@ -33,7 +34,7 @@ class ModelCheckpoint:
         self.dirpath, self.filename = os.path.split(filepath)
         os.makedirs(self.dirpath, exist_ok=True)
         # Store arguments
-        self.monitor = monitor
+        self.monitor_val = monitor_val
         self.save_top_k = save_top_k
         self.period = period
         self.epoch_last_check = None
@@ -46,9 +47,9 @@ class ModelCheckpoint:
             'min': (torch_inf, 'min'),
             'max': (-torch_inf, 'max'),
             'auto': (-torch_inf, 'max') if \
-                'acc' in self.monitor or \
-                'a1' in self.monitor or \
-                self.monitor.startswith('fmeasure')
+                'acc' in self.monitor_val or \
+                'a1' in self.monitor_val or \
+                self.monitor_val.startswith('fmeasure')
             else (torch_inf, 'min'),
         }
         self.kth_value, self.mode = mode_dict[mode]
@@ -117,7 +118,12 @@ class ModelCheckpoint:
         filename = filename.format(**metrics)
         return os.path.join(self.dirpath, '{}.ckpt'.format(filename))
 
-    def check_and_save(self, model, metrics):
+    def check_and_save(self, model, metrics, metric_type='val'):
+        if metric_type == 'val':
+            monitor_metric = self.monitor_val 
+        else:
+            monitor_metric = self.monitor_train
+
         # Check saving interval
         epoch = model.current_epoch
         if self.epoch_last_check is not None and \
@@ -130,7 +136,7 @@ class ModelCheckpoint:
             filepath = self.format_checkpoint_name(epoch, metrics)
         # Check if saving or not
         if self.save_top_k != -1:
-            current = metrics.get(self.monitor)
+            current = metrics.get(self.monitor_metric)
             assert current, 'Checkpoint metric is not available'
             if self.check_monitor_top_k(current):
                 self._do_check_save(filepath, model, current)

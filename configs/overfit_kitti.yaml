@@ -1,5 +1,5 @@
 arch:
-    max_epochs: 1
+    max_epochs: 10
 model:
     name: 'SelfSupModel'
     optimizer:
@@ -22,6 +22,9 @@ model:
         crop: 'garg'
         min_depth: 0.0
         max_depth: 80.0
+checkpoint:
+    filepath: './test_checkpoints'
+    period: 0
 datasets:
     augmentation:
         image_shape: (192, 640)
@@ -31,7 +34,8 @@ datasets:
         path: ['data/datasets/KITTI_tiny']
         split: ['kitti_tiny.txt']
         depth_type: ['velodyne']
-        repeat: [1000]
+        repeat: [100]
+        log_freq: 50
     validation:
         dataset: ['KITTI']
         path: ['data/datasets/KITTI_tiny']
@@ -42,3 +46,10 @@ datasets:
         path: ['data/datasets/KITTI_tiny']
         split: ['kitti_tiny.txt']
         depth_type: ['velodyne']
+wandb:
+    dry_run: False                                # Wandb dry-run (not logging)
+    name: 'Test_packnet'                          # Wandb run name
+    project: os.environ.get("WANDB_PROJECT", "")  # Wandb project
+    entity: os.environ.get("WANDB_ENTITY", "")    # Wandb entity
+    tags: []                                      # Wandb tags
+    dir: './logs'    

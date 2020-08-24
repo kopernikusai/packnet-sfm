@@ -86,14 +86,14 @@ def set_checkpoint(config):
     # If checkpoint is enabled
     if config.checkpoint.filepath is not '':
         # Create proper monitor string
-        config.checkpoint.monitor = os.path.join('{}-{}'.format(
+        config.checkpoint.monitor_val = os.path.join('{}-{}'.format(
             prepare_dataset_prefix(config.datasets.validation,
                                    config.checkpoint.monitor_index),
-            config.checkpoint.monitor))
+            config.checkpoint.monitor_val))
         # Join checkpoint folder with run name
         config.checkpoint.filepath = os.path.join(
             config.checkpoint.filepath, config.name,
-            '{epoch:02d}_{%s:.3f}' % config.checkpoint.monitor)
+            '{epoch:02d}_{%s:.3f}' % config.checkpoint.monitor_val)
         # Set s3 url
         if config.checkpoint.s3_path is not '':
             config.checkpoint.s3_url = s3_url(config)

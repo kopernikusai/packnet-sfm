@@ -55,17 +55,18 @@ class HorovodTrainer(BaseTrainer):
         # Epoch loop
         for epoch in range(module.current_epoch, self.max_epochs):
             # Train
-            self.train(train_dataloader, module, optimizer, epoch)
+            self.train(train_dataloader, module, optimizer)
             # Validation
             validation_output = self.validate(val_dataloaders, module)
             # Check and save model
+            import pdb; pdb.set_trace()
             self.check_and_save(module, validation_output)
             # Update current epoch
             module.current_epoch += 1
             # Take a scheduler step
             scheduler.step()
 
-    def train(self, dataloader, module, optimizer, epoch_num):
+    def train(self, dataloader, module, optimizer):
         # Set module to train
         module.train()
         # Shuffle dataloader sampler
@@ -92,15 +93,16 @@ class HorovodTrainer(BaseTrainer):
             # outputs.append(output) # TODO uncomment for multi GPU proper logging
             # Update progress bar if in rank 0
             if self.is_rank_0:
-                if i % 20 == 0:
+                step = module.current_epoch * len(module.train_dataset) + i
+                if i % module.config.datasets.train.log_freq == 0:
                     if module.logger:
-                        module.log_epoch_step(output, batch, epoch_num, i)
+                        module.log_epoch_step(output, batch, step, self.checkpoint)
 
                 progress_bar.set_description(
                     'Epoch {} | Avg.Loss {:.4f}'.format(
                         module.current_epoch, self.avg_loss(output['loss'].item())))
         # Return outputs for epoch end
-        return module.training_epoch_end(outputs)
+        #return module.training_epoch_end(outputs)
 
     def validate(self, dataloaders, module):
         # Set module to eval
