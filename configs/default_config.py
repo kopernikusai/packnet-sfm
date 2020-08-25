@@ -25,8 +25,8 @@ cfg.checkpoint.monitor_val = 'loss'     # Metric to monitor for logging
 cfg.checkpoint.monitor_train = 'loss'   # Metric to monitor for saving during training
 cfg.checkpoint.monitor_index = 0        # Dataset index for the metric to monitor
 cfg.checkpoint.mode = 'auto'            # Automatically determine direction of improvement (increase or decrease)
-cfg.checkpoint.period = 1               # Min steps between validation to save model
-cfg.checkpoint.save_freq_in_train = -1  # Saves between every step
+cfg.checkpoint.period = 0               # Min steps between validation to save model
+cfg.checkpoint.save_freq_in_train = -1  # Saves between every log step, has to be a multiple of ds.rtain.log_freq
 cfg.checkpoint.s3_path = ''             # s3 path for AWS model syncing
 cfg.checkpoint.s3_frequency = 1         # How often to s3 sync
 ########################################################################################################################

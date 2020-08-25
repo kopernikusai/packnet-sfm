@@ -93,7 +93,7 @@ def set_checkpoint(config):
         # Join checkpoint folder with run name
         config.checkpoint.filepath = os.path.join(
             config.checkpoint.filepath, config.name,
-            '{epoch:02d}_{%s:.3f}' % config.checkpoint.monitor_val)
+            '{epoch:02d}_{step:05d}_{%s:.3f}' % config.checkpoint.monitor_val)
         # Set s3 url
         if config.checkpoint.s3_path is not '':
             config.checkpoint.s3_url = s3_url(config)

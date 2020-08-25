@@ -242,9 +242,10 @@ class ModelWrapper(torch.nn.Module):
 
             self.logger.log_metrics({**self.logs, **loss_and_metrics}, step=step)
 
-        if checkpoint and step % self.config.checkpoint.save_freq:
-            import pdb; pdb.set_trace()
-            checkpoint.check_and_save(self, loss_and_metrics, 'train')
+        if checkpoint:
+            if step % self.config.checkpoint.save_freq_in_train == 0 or \
+                    self.config.checkpoint.save_freq_in_train == -1:
+                checkpoint.check_and_save(self, loss_and_metrics, 'train', step)
 
         return {
             **loss_and_metrics

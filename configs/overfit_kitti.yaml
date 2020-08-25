@@ -24,7 +24,10 @@ model:
         max_depth: 80.0
 checkpoint:
     filepath: './test_checkpoints'
+    monitor_val: 'abs_rel'
+    monitor_train: 'single_step-loss'
     period: 0
+    save_freq_in_train: 1000 
 datasets:
     augmentation:
         image_shape: (192, 640)
@@ -34,8 +37,8 @@ datasets:
         path: ['data/datasets/KITTI_tiny']
         split: ['kitti_tiny.txt']
         depth_type: ['velodyne']
-        repeat: [100]
-        log_freq: 50
+        repeat: [1000]
+        log_freq: 100
     validation:
         dataset: ['KITTI']
         path: ['data/datasets/KITTI_tiny']

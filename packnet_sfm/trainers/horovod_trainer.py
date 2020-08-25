@@ -59,7 +59,6 @@ class HorovodTrainer(BaseTrainer):
             # Validation
             validation_output = self.validate(val_dataloaders, module)
             # Check and save model
-            import pdb; pdb.set_trace()
             self.check_and_save(module, validation_output)
             # Update current epoch
             module.current_epoch += 1

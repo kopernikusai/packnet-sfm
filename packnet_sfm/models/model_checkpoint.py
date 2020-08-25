@@ -4,6 +4,7 @@
 # https://github.com/PyTorchLightning/pytorch-lightning/blob/master/pytorch_lightning/callbacks/model_checkpoint.py
 
 import os, re
+import logging
 import numpy as np
 import torch
 from packnet_sfm.utils.logging import pcolor
@@ -35,6 +36,7 @@ class ModelCheckpoint:
         os.makedirs(self.dirpath, exist_ok=True)
         # Store arguments
         self.monitor_val = monitor_val
+        self.monitor_train = monitor_train
         self.save_top_k = save_top_k
         self.period = period
         self.epoch_last_check = None
@@ -107,8 +109,9 @@ class ModelCheckpoint:
         # Compare and return
         return monitor_op(current, self.best_k_models[self.kth_best_model])
 
-    def format_checkpoint_name(self, epoch, metrics):
+    def format_checkpoint_name(self, epoch, metrics, step, metric_type):
         metrics['epoch'] = epoch
+        metrics['step'] = step
         filename = self.filename
         for tmp in re.findall(r'(\{.*?)[:\}]', self.filename):
             name = tmp[1:]
@@ -116,9 +119,10 @@ class ModelCheckpoint:
             if name not in metrics:
                 metrics[name] = 0
         filename = filename.format(**metrics)
+        filename = "{}_{}".format(metric_type, filename)
         return os.path.join(self.dirpath, '{}.ckpt'.format(filename))
 
-    def check_and_save(self, model, metrics, metric_type='val'):
+    def check_and_save(self, model, metrics, metric_type='val', step=0):
         if metric_type == 'val':
             monitor_metric = self.monitor_val 
         else:
@@ -131,12 +135,13 @@ class ModelCheckpoint:
             return
         self.epoch_last_check = epoch
         # Prepare filepath
-        filepath = self.format_checkpoint_name(epoch, metrics)
-        while os.path.isfile(filepath):
-            filepath = self.format_checkpoint_name(epoch, metrics)
+        filepath = self.format_checkpoint_name(epoch, metrics, step, metric_type)
+        if os.path.isfile(filepath):
+            print("  !!!! ckpt already exists, not saving")
+            return
         # Check if saving or not
         if self.save_top_k != -1:
-            current = metrics.get(self.monitor_metric)
+            current = metrics.get(monitor_metric)
             assert current, 'Checkpoint metric is not available'
             if self.check_monitor_top_k(current):
                 self._do_check_save(filepath, model, current)
