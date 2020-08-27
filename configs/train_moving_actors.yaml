@@ -20,19 +20,25 @@ model:
         crop: 'garg'
         min_depth: 0.0
         max_depth: 80.0
+checkpoint:
+    filepath: './test_checkpoints'
+    monitor_val: 'abs_rel'
+    monitor_train: 'single_step-loss'
+    period: 0
+    save_freq_in_train: 1000 
 datasets:
     augmentation:
         image_shape: (544, 960)
     train:
         batch_size: 1
-        num_workers: 1
         dataset: ['Image']
         #path: ['/home/kopernikus/Downloads/moving_actors_ds']
         path: ['/HDD/Documents/Google Drive/Archivos_compartidos/Kopernikus_General/Training_videos/ML_videos/moving_actors/moving_actors_ds']
         split: ['{:d}']
         depth_type: ['']
         repeat: [1]
-        num_logs: 9837
+        num_workers: 48
+        num_logs: 1000
     validation:
         dataset: ['KITTI']
         path: ['data/datasets/KITTI_tiny']
