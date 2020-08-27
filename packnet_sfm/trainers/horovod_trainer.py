@@ -89,17 +89,16 @@ class HorovodTrainer(BaseTrainer):
             # Append output to list of outputs
             output['loss'] = output['loss'].detach()
             output['inv_depth'] = [t.detach() for t in output['inv_depth']]
-            # outputs.append(output) # TODO uncomment for multi GPU proper logging
+            # outputs.append(output) # Mike's
             # Update progress bar if in rank 0
-            if self.is_rank_0:
-                step = module.current_epoch * len(module.train_dataset) + i
-                if i % module.config.datasets.train.log_freq == 0:
-                    if module.logger:
-                        module.log_epoch_step(output, batch, step, self.checkpoint)
+            if module.current_step % module.config.datasets.train.log_freq == 0:
+                module.log_epoch_step(output, batch, module.current_step, self.checkpoint, self.is_rank_0)
 
+            if self.is_rank_0:
                 progress_bar.set_description(
                     'Epoch {} | Avg.Loss {:.4f}'.format(
                         module.current_epoch, self.avg_loss(output['loss'].item())))
+            module.current_step += 1
         # Return outputs for epoch end
         #return module.training_epoch_end(outputs)
 

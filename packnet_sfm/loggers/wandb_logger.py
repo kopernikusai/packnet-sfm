@@ -168,7 +168,7 @@ class WandbLogger:
         dataset_idx = 0 if len(args) == 1 else args[1] # What the hell is this?
         prefix = prepare_dataset_prefix(config, dataset_idx)
         interval = len(dataset[dataset_idx]) // world_size // config.num_logs
-        if args[0] % interval == 0:
+        if interval == 0 or args[0] % interval == 0:
             #prefix_idx = '{}-{}-{}'.format(mode, prefix, batch['idx'][0].item())
             prefix_idx = '{}-{}'.format(mode, prefix)
             func(prefix_idx, batch, output)

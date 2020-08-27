@@ -53,6 +53,7 @@ class ModelWrapper(torch.nn.Module):
         self.model = self.optimizer = self.scheduler = None
         self.train_dataset = self.validation_dataset = self.test_dataset = None
         self.current_epoch = 0
+        self.current_step = 0
 
         # Prepare model
         self.prepare_model(resume)
@@ -214,7 +215,7 @@ class ModelWrapper(torch.nn.Module):
             **output['metrics'],
         }
 
-    def log_epoch_step(self, output_batch, batch, step, checkpoint):
+    def log_epoch_step(self, output_batch, batch, step, checkpoint, is_rank_0):
         """Logs matrics, loss and depth of step."""
 
         # Calculate and reduce average loss and metrics per GPU
@@ -242,7 +243,7 @@ class ModelWrapper(torch.nn.Module):
 
             self.logger.log_metrics({**self.logs, **loss_and_metrics}, step=step)
 
-        if checkpoint:
+        if checkpoint and is_rank_0:
             if step % self.config.checkpoint.save_freq_in_train == 0 or \
                     self.config.checkpoint.save_freq_in_train == -1:
                 checkpoint.check_and_save(self, loss_and_metrics, 'train', step)
