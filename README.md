@@ -75,7 +75,15 @@ NB: if you would rather not use docker, you could create a [conda](https://docs.
 
 ### Using Conda
 
-Run `conda env create -f environment.yml` and then install the package with `pip install -e .` and to with multiple GPU run 
+Run `conda env create -f environment.yml` and then install the following packages
+
+* `pip install -e .` 
+* pip install torch
+* apt-get install openmpi
+
+
+
+and to with multiple GPU run 
 
 ```shell
 horovodrun -np 2 python scripts/train.py {ckpt or conf file}
